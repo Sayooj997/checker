@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Address Lookup</title>
+    <title>IP Address / Domain Lookup</title>
     <link rel="icon" href="https://example.com/favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
@@ -37,37 +37,45 @@
         .input-container {
             display: flex;
             align-items: center;
-            background-color: #e2f0e8;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            padding: 10px;
+            padding: 5px;
             margin-bottom: 20px;
+            background-color: #fff;
         }
 
         .input-container input {
             border: none;
-            background: none;
-            color: #004225;
             outline: none;
             font-size: 16px;
             flex: 1;
-        }
-
-        .input-container button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            margin-left: 10px;
+            padding: 8px;
             color: #004225;
         }
 
-        .input-container button:hover {
+        .clear-button-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+            margin-right: 5px;
+        }
+
+        .clear-button-icon:hover {
             color: #00aaff;
         }
 
-        .icon {
-            font-size: 24px;
-            margin-right: 10px;
+        .search-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .search-button:hover {
+            color: #00aaff;
         }
 
         .checkbox-container {
@@ -79,28 +87,52 @@
             display: block;
             margin-bottom: 10px;
         }
+
+        .dropdown-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            background-color: #e2f0e8;
+            color: #004225;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .dropdown-container::after {
+            content: '\25BC';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #004225;
+            pointer-events: none;
+        }
     </style>
-<script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('ipAddress').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    openUrls();
-                }
-            });
-        });
-    </script>
 </head>
 <body>
     <div class="container">
-        <div class="label">IP Address Lookup Tool</div>
-        <div class="input-container">
-            <span class="icon">&#128269;</span>
-            <input type="text" id="ipAddress" placeholder="Enter IP Address">
-            <button onclick="openUrls()">
-                <span class="icon">&#10148;</span>
-            </button>
+        <div class="label">IP Address / Domain Lookup Tool</div>
+        <div class="dropdown-container">
+            <select id="lookupType">
+                <option value="ip">IP Address</option>
+                <option value="domain">Domain</option>
+            </select>
         </div>
-        <div class="checkbox-container">
+        <div class="input-container">
+            <input type="text" id="lookupInput" placeholder="Enter IP Address or Domain">
+            <button class="clear-button-icon" onclick="clearInput()">&#10006;</button>
+            <button class="search-button" onclick="openUrls()">&#128269;</button>
+        </div>
+        <div class="checkbox-container" id="checkboxContainer">
             <label><input type="checkbox" id="virustotal" checked> VirusTotal</label>
             <label><input type="checkbox" id="ipinfo" checked> IPInfo</label>
             <label><input type="checkbox" id="abuseipdb" checked> AbuseIPDB</label>
@@ -108,34 +140,71 @@
         </div>
     </div>
 <script>
-        function isValidIP(ip) {
-            const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
-            const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,7}:$|^([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}$|^([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}$|^([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}$|^([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}$|^[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})$|^:((:[0-9a-fA-F]{1,4}){1,7}|:)$|^fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}$|^::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3,3}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){3,3}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
-            return ipv4Regex.test(ip) || ipv6Regex.test(ip);
-        }
-
-        function openUrls() {
-            const ipAddress = document.getElementById('ipAddress').value;
-            if (!ipAddress || !isValidIP(ipAddress)) {
-                alert('Please enter a valid IP address (IPv4 or IPv6).');
-                return;
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('lookupInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                openUrls();
             }
+        });
+        document.getElementById('lookupType').addEventListener('change', updateCheckboxes);
+        updateCheckboxes();
+    });
 
-            const urls = [
-                { url: `https://www.virustotal.com/gui/ip-address/${ipAddress}`, checkbox: document.getElementById('virustotal') },
-                { url: `https://ipinfo.io/${ipAddress}`, checkbox: document.getElementById('ipinfo') },
-                { url: `https://www.abuseipdb.com/check/${ipAddress}`, checkbox: document.getElementById('abuseipdb') },
-                { url: `https://www.whois.com/whois/${ipAddress}`, checkbox: document.getElementById('whois') }
-            ];
+    function isValidIP(ip) {
+        const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
+        const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,7}:$|^([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}$|^([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}$|^([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}$|^([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}$|^([0-9a-fA-F]{1,4}:){1,7}:$|^::([0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}$/;
+        return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+    }
 
-            urls.forEach((entry, index) => {
-                if (entry.checkbox.checked) {
-                    setTimeout(() => {
-                        window.open(entry.url, '_blank');
-                    }, index * 500);
-                }
-            });
+    function openUrls() {
+        const lookupType = document.getElementById('lookupType').value;
+        const lookupInput = document.getElementById('lookupInput').value.trim();
+
+        if (!lookupInput) {
+            alert('Please enter a valid input.');
+            return;
         }
-    </script>
+
+        if (lookupType === 'ip' && !isValidIP(lookupInput)) {
+            alert('Please enter a valid IP address (IPv4 or IPv6).');
+            return;
+        }
+
+        const urls = [
+            { url: lookupType === 'ip' ? `https://www.virustotal.com/gui/ip-address/${lookupInput}` : `https://www.virustotal.com/gui/domain/${lookupInput}`, checkbox: document.getElementById('virustotal') },
+            { url: `https://ipinfo.io/${lookupInput}`, checkbox: document.getElementById('ipinfo') },
+            { url: `https://www.abuseipdb.com/check/${lookupInput}`, checkbox: document.getElementById('abuseipdb') },
+            { url: `https://www.whois.com/whois/${lookupInput}`, checkbox: document.getElementById('whois') }
+        ];
+
+        urls.forEach((entry, index) => {
+            if (entry.checkbox && entry.checkbox.checked) {
+                setTimeout(() => {
+                    window.open(entry.url, '_blank');
+                }, index * 500);
+            }
+        });
+    }
+
+    function clearInput() {
+        document.getElementById('lookupInput').value = '';
+    }
+
+    function updateCheckboxes() {
+        const lookupType = document.getElementById('lookupType').value;
+        const checkboxContainer = document.getElementById('checkboxContainer');
+
+        if (lookupType === 'domain') {
+            checkboxContainer.innerHTML = '<label><input type="checkbox" id="virustotal" checked> VirusTotal</label>';
+        } else {
+            checkboxContainer.innerHTML = `
+                <label><input type="checkbox" id="virustotal" checked> VirusTotal</label>
+                <label><input type="checkbox" id="ipinfo" checked> IPInfo</label>
+                <label><input type="checkbox" id="abuseipdb" checked> AbuseIPDB</label>
+                <label><input type="checkbox" id="whois" checked> Whois</label>
+            `;
+        }
+    }
+</script>
 </body>
 </html>
